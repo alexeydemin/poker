@@ -2,7 +2,9 @@
 
 namespace App;
 
-class Combination
+use Illuminate\Database\Eloquent\Model;
+
+class Combination extends Model
 {
     public static $order = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
     public static $suits = ['clubs', 'diamonds', 'hearts', 'spades' ];
@@ -16,7 +18,6 @@ class Combination
     const _7_FULL_HOUSE      = '7. Full House: Three of a kind and a pair.';
     const _8_FOUR_OF_A_KIND  = '8. Four of a Kind: Four cards of the same value.';
     const _9_STRAIGHT_FLUSH  = '9. Straight Flush: All cards are consecutive values of same suit.';
-
     const _10_ROYAL_FLUSH    = '10. Royal Flush: Ten, Jack, Queen, King, Ace of same suit.';
 
     //Array of internal numbers
@@ -84,6 +85,6 @@ class Combination
             return self::_3_TWO_PAIRS;
         if( $numberList[0] == 2 )
             return self::_2_ONE_PAIR;
-        return false;
+        return self::_1_HIGH_CARD;
     }
 }

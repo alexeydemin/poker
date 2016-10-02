@@ -11,14 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::post('/', function () {
-    return view('welcome');
-});
-
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'PokerController@index' );
+Route::post('/deal', 'PokerController@deal' );
+Route::post('/shuffle', 'PokerController@shuffle' );

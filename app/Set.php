@@ -2,7 +2,10 @@
 
 namespace App;
 
-class Set {
+use Illuminate\Database\Eloquent\Model;
+
+class Set extends Model
+{
     const NUMBER = 'number';
     const SUIT = 'suit';
     public $set;
@@ -16,6 +19,8 @@ class Set {
         $this->suit_str = self::SUIT;
         $this->number_str = self::NUMBER;
         $this->set = json_decode($json);
+        if( !$this->set )
+            die;
         $this->addPics();
         if( $this->set  != array_unique($this->set, SORT_REGULAR) ){
             throw new Exception('Deck inconsistency detected!');
