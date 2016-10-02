@@ -19,9 +19,9 @@ class Set extends Model
         $this->suit_str = self::SUIT;
         $this->number_str = self::NUMBER;
         $this->set = json_decode($json);
-        if( !$this->set )
-            die;
+        if( !$this->set ) die;
         $this->addPics();
+        print_r( $this->set );
         if( $this->set  != array_unique($this->set, SORT_REGULAR) ){
             throw new Exception('Deck inconsistency detected!');
         }
@@ -34,7 +34,6 @@ class Set extends Model
         foreach($this->set as $s){
             $s->unicode = '&#x1f0' . $this->s_pics[ $s->$ss ] . $this->n_pics[ $s->$ns ] ;
         }
-        print_r( $this->set);
     }
 
     public function getSuits()

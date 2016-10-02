@@ -23,6 +23,9 @@ class Combination extends Model
     //Array of internal numbers
     private $internal_set;
     private $Ace;
+    public $rank;
+    public $description;
+    public $highest;
 
     public function __construct(Set $set)
     {
@@ -30,7 +33,7 @@ class Combination extends Model
         $this->Ace = count(self::$order)-1;
         $this->setInternalArray();
         echo $this->getCombination() . "\n";
-        //$this->
+        $this->calcHighestCard();
     }
 
     public function setInternalArray()
@@ -62,29 +65,36 @@ class Combination extends Model
 
     public function getCombination()
     {
-        //$numbers = $this->set->getNumbers();
         $numberList = $this->aggregate($this->internal_set);
         $suits = $this->set->getSuits();
         $suitList = $this->aggregate( $suits );
 
+        $cmb = self::_1_HIGH_CARD;
         if( $this->checkStraight() && $suitList[0] == 5 && $this->internal_set[4] = $this->Ace )
-            return self::_10_ROYAL_FLUSH;
+            $cmb =  self::_10_ROYAL_FLUSH;
         if( $this->checkStraight() && $suitList[0] == 5 )
-            return self::_9_STRAIGHT_FLUSH;
+            $cmb =  self::_9_STRAIGHT_FLUSH;
         if( $numberList[0] == 4 )
-            return self::_8_FOUR_OF_A_KIND;
+            $cmb =  self::_8_FOUR_OF_A_KIND;
         if( $numberList[0] == 3 && $numberList[1] == 2 )
-            return self::_7_FULL_HOUSE;
+            $cmb =  self::_7_FULL_HOUSE;
         if( $suitList[0] == 5)
-            return self::_6_FLUSH;
+            $cmb =  self::_6_FLUSH;
         if($this->checkStraight() )
-            return self::_5_STRAIGHT;
+            $cmb =  self::_5_STRAIGHT;
         if( $numberList[0] == 3 )
-            return self::_4_THREE_OF_A_KIND;
+            $cmb =  self::_4_THREE_OF_A_KIND;
         if( $numberList[0] == 2 && $numberList[1] == 2 )
-            return self::_3_TWO_PAIRS;
+            $cmb =  self::_3_TWO_PAIRS;
         if( $numberList[0] == 2 )
-            return self::_2_ONE_PAIR;
-        return self::_1_HIGH_CARD;
+            $cmb =  self::_2_ONE_PAIR;
+
+        $this->rank = explode('.', $cmb)[0];
+        $this->description = explode('.', $cmb)[1];
+    }
+
+    private function calcHighestCard()
+    {
+        $this->highest = max($this->internal_set);
     }
 }

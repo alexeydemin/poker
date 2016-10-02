@@ -7,77 +7,45 @@ use App\Requester;
 
 class Game extends Model
 {
+    const TIE = 'Tie';
+    const PLAYER1 = 'Player 1 wins';
+    const PLAYER2 = 'Player 2 wins';
 
     public function start()
     {
-        //$token = $this->getToken($request);
-        //echo ( $token );
-        //echo '<br><br><br>';
-        //echo $this->getSet( $token );
+
         $r = new Requester;
         $deck = $r->getDeck();
-        //var_dump ( $deck );
-        echo $deck;
-        $json = $r->getCardSet($deck);
-        echo $json;
-       /* echo 'EXAMPLE=' .
-         '[
-    {
-        "number": "J",
-        "suit": "diamonds"
-    },
-    {
-        "number": "K",
-        "suit": "clubs"
-    },
-    {
-        "number": "K",
-        "suit": "diamonds"
-    },
-    {
-        "number": "K",
-        "suit": "hearts"
-    },
-    {
-        "number": "K",
-        "suit": "spades"
-    }
-]';*/
+        print_r( $deck );
 
-        $combination = new Combination(new Set($json));
+        $json1 = $r->getCardSet($deck);
+        $player1Set = new Set($json1);
+
+        $json2 = $r->getCardSet($deck);
+        $player2Set = new Set($json2);
+
+        $combination1 = new Combination($player1Set);
+        $combination2 = new Combination($player2Set);
+
+        echo '<br>';
+        echo $combination1->description . '<br>';
+        echo $combination2->description. '<br>';
+
+        echo self::compareCombinations($combination1, $combination2);
     }
 
-    public function __getSet( $token )
+    public static function compareCombinations($comb1, $comb2)
     {
-        $url = sprintf('http://dealer.internal.comparaonline.com:8080/deck/%s/deal/5', $token);
-        $res = $this->guzzle->request('GET', $url);
-        $json = (string)$res->getBody();
-
-        echo $json;
-    }
-
-    public function __getToken($request)
-    {
-        if ( $request->session()->has('token') && $request->session()->get('token') ) {
-            echo 'Already has';
-            return $request->session()->get('token');
-        } else {
-            return $this->getNewToken($request);
+        if( $comb1->rank == $comb2->rank ){
+            if( $comb1->highest > $comb2->highest )
+                return self::PLAYER1;
+            if( $comb1->highest < $comb2->highest )
+                return self::PLAYER2;
+            if( $comb1->highest == $comb2->highest )
+                return self::TIE;
         }
+        return $comb1->rank > $comb2->rank ? self::PLAYER1 : self::PLAYER2;
     }
 
-    //b06ba070-8830-11e6-9c4b-b5d17f2932f5
-    public function __getNewToken($request)
-    {
-        echo 'Gonna get new one...';
-        try {
-            $res = $this->guzzle->request('POST', 'http://dealer.internal.comparaonline.com:8080/deck');
-            $token = (string)$res->getBody();
-            $request->session()->put('token', $token);
-            return $token;
-        } catch(\GuzzleHttp\Exception\BadResponseException $e){
-            return $this->getNewToken($request);
-        }
 
-    }
 }
