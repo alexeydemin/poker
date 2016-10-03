@@ -26,6 +26,7 @@ class Combination extends Model
     public $rank;
     public $description;
     public $highest;
+    public $set;
 
     public function __construct(Set $set)
     {

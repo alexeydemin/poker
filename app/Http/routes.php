@@ -11,6 +11,8 @@
 |
 */
 
-Route::get('/', 'PokerController@index' );
+Route::get("/", function(){
+    return View::make('poker');
+});
 Route::post('/deal', 'PokerController@deal' );
 Route::post('/shuffle', 'PokerController@shuffle' );

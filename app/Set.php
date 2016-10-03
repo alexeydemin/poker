@@ -3,25 +3,21 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use League\Flysystem\Exception;
 
-class Set extends Model
+class Set
 {
     const NUMBER = 'number';
     const SUIT = 'suit';
-    public $set;
-    private $n_pics = ['A' => '1', '2' => '2', '3'=>'3', '4'=>'4', '5'=>'5', '6'=>'6', '7'=>'7', '8' => '8', '9' => '9',
-        '10' => 'a', 'J' => 'b', 'Q' => 'd', 'K' => 'e' ];
-    private $s_pics = ['spades' => 'a', 'hearts' => 'b', 'diamonds' => 'c', 'clubs' => 'd'];
+    public $set; //array of cards
 
 
     public function __construct($json)
     {
-        $this->suit_str = self::SUIT;
-        $this->number_str = self::NUMBER;
         $this->set = json_decode($json);
-        if( !$this->set ) die;
+        if( !$this->set )
+            throw new Exception('Trying to get Set from empty array');
         $this->addPics();
-        print_r( $this->set );
         if( $this->set  != array_unique($this->set, SORT_REGULAR) ){
             throw new Exception('Deck inconsistency detected!');
         }
@@ -29,10 +25,10 @@ class Set extends Model
 
     private function addPics()
     {
-        $ss = $this->suit_str;
-        $ns = $this->number_str;
+        $ss = self::SUIT;
+        $ns = self::NUMBER;
         foreach($this->set as $s){
-            $s->unicode = '&#x1f0' . $this->s_pics[ $s->$ss ] . $this->n_pics[ $s->$ns ] ;
+            $s->unicode = '&#x1f0' . Repository::$s_pics[ $s->$ss ] . Repository::$n_pics[ $s->$ns ] ;
         }
     }
 
@@ -41,7 +37,7 @@ class Set extends Model
 
         $res = [];
         foreach( $this->set as $card ) {
-            $val = $this->suit_str;
+            $val = self::SUIT;
             $res[] = $card->$val;
             if( !in_array($card->$val, Combination::$suits) ){
                 throw new Exception('Unknown card suit');
@@ -54,7 +50,7 @@ class Set extends Model
     {
         $res = [];
         foreach( $this->set as $card ) {
-            $val = $this->number_str;
+            $val = self::NUMBER;
             $res[] = $card->$val;
             if( !in_array($card->$val, Combination::$order) ){
                 throw new Exception('Unknown card number');

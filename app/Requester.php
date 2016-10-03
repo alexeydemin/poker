@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use \GuzzleHttp\Client;
 use Illuminate\Support\Facades\Session;
+use League\Flysystem\Exception;
 
 class Requester extends Model
 {
@@ -20,15 +21,21 @@ class Requester extends Model
     //Simple wrapper to handle 5xx error;
     private function sendRequest($request_data)
     {
-        try {
-            $res = $this->guzzle->request($request_data['method'], $request_data['url']);
-            $body = (string)$res->getBody();
-            return $body;
-        } catch(\GuzzleHttp\Exception\ClientException $ce) {
-            echo  'We are out of cards!!' ;
-            return false;
-        } catch(\GuzzleHttp\Exception\ServerException $e){
-            return $this->sendRequest($request_data);
+        $res = $this->guzzle->request($request_data['method'], $request_data['url'], ['http_errors' => false]);
+        switch ( $res->getStatusCode() )
+        {
+            case 200:
+                return (string)$res->getBody();
+            case 404:
+                echo 'Your game has expired';
+                break;
+            case 405:
+                echo 'We are out of cards!';
+                break;
+            case 500:
+                return $this->sendRequest($request_data);
+            default:
+                throw new Exception('Unknown status code');
         }
     }
 
@@ -37,9 +44,9 @@ class Requester extends Model
         return $this->sendRequest( $this->deckPath );
     }
 
-    public function getDeck()
+    public function getDeck($get_new = false)
     {
-        if ( Session::has('token') && Session::get('token') ) {
+        if ( Session::has('token') && Session::get('token') && !$get_new ) {
             return Session::get('token');
         } else {
             $deck = $this->getNewDeck();
