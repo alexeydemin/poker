@@ -23,11 +23,11 @@ class Game extends Model
         $json1 = $r->getCardSet($deck);
         if ($json1) {
             $player1Set = new Set($json1);
-            $this->result_logger['player1set'] = (array) $player1Set;
+            $this->result_logger['player1set'] = (array) $player1Set->set;
 
             $json2 = $r->getCardSet($deck);
             $player2Set = new Set($json2);
-            $this->result_logger['player2set'] = (array) $player2Set;
+            $this->result_logger['player2set'] = (array) $player2Set->set;
 
             $combination1 = new Combination($player1Set);
             $combination2 = new Combination($player2Set);
@@ -43,7 +43,6 @@ class Game extends Model
             }
             if( $winner == self::PLAYER2 ){
                 $this->player2_score++;
-
             }
             //TODO: Remove output
             //echo "\nPLAYER ONE SCORE=" . $this->player1_score ."\n";

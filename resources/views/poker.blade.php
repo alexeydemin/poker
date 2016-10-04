@@ -15,16 +15,14 @@
         <td>Winner1</td>
     </tr>
     <tr>
-        <td colspan="2">Game over / Game espared</td>
+        <td colspan="2">Game over / Game expired</td>
     </tr>
     <tr>
         <td colspan="2">Result of the game</td>
     </tr>
     <tr>
         <td>
-            <form method="post" action="{{ action('PokerController@deal') }}">
-                <input type="submit" name="deal" value="Deal">
-            </form>
+            <input type="button" />
         </td>
         <td>
             <form method="post" action="{{ action('PokerController@shuffle') }}">

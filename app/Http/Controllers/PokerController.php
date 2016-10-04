@@ -6,20 +6,26 @@ use App\Game;
 
 class PokerController extends Controller
 {
+    public $game;
+
+    public function __construct()
+    {
+        $this->game = new Game();
+    }
+
     public function shuffle()
     {
-        $game = new Game();
         $new_game = true;
-        $game->start($new_game);
-        echo ( json_encode( $game->result_logger ) );
-        return view('poker');
+        $this->game->start($new_game);
+        echo ( json_encode( $this->game->result_logger ) );
+        //return view('main');
     }
 
     public function deal()
     {
-        $game = new Game();
-        $game->start();
-        print_r( $game->result_logger );
-        return view('poker');
+        $this->game->start();
+        //print_r( $this->game->result_logger );
+        echo ( json_encode( $this->game->result_logger ) );
+        //return view('main');
     }
 }

@@ -12,7 +12,7 @@
 */
 
 Route::get("/", function(){
-    return View::make('poker');
+    return View::make('main');
 });
 Route::post('/deal', 'PokerController@deal' );
 Route::post('/shuffle', 'PokerController@shuffle' );
