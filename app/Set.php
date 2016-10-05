@@ -28,7 +28,8 @@ class Set
         $ss = self::SUIT;
         $ns = self::NUMBER;
         foreach($this->set as $s){
-            $s->unicode = '\u1f0' . Repository::$s_pics[ $s->$ss ] . Repository::$n_pics[ $s->$ns ] ;
+            $s->unicode = '&#x1f0' . Repository::$s_pics[ $s->$ss ] . Repository::$n_pics[ $s->$ns ] . ';' ;
+            $s->color = in_array($s->$ss, ['hearts', 'diamonds']) ? 'red' : 'black';
         }
     }
 

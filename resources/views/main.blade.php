@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-16">
+    <meta charset="utf-8">
     <title>Super Pokeroom</title>
     <link rel="stylesheet" href="css/poker.css" />
     <script src="//npmcdn.com/react@15.3.0/dist/react.js"></script>

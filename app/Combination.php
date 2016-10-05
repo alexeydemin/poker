@@ -25,8 +25,9 @@ class Combination extends Model
     private $Ace;
     public $rank;
     public $description;
-    public $highest;
     public $set;
+    public $highest;
+    public $second = false;
 
     public function __construct(Set $set)
     {
@@ -34,7 +35,6 @@ class Combination extends Model
         $this->Ace = count(self::$order)-1;
         $this->setInternalArray();
         echo $this->getCombination() . "\n";
-        $this->calcHighestCard();
     }
 
     public function setInternalArray()
@@ -49,11 +49,12 @@ class Combination extends Model
         $this->internal_set = $res;
     }
 
-
     public static function aggregate($e)
     {
         $arr =  array_count_values( $e );
-        rsort( $arr );
+        //array_multisort(array_values($arr), SORT_DESC, array_keys($arr), SORT_DESC, $arr);
+        // TODO: Provide with correct sort!
+        arsort( $arr );
         return $arr;
     }
 
@@ -67,35 +68,63 @@ class Combination extends Model
     public function getCombination()
     {
         $numberList = $this->aggregate($this->internal_set);
+        reset($numberList);
+        $topSubset = key($numberList);  //most common card
+        next($numberList);
+        $secondSubset = key($numberList); // second most common
+        echo 'top =' . $topSubset;
+        echo 'second =' . $secondSubset;
+        die;
         $suits = $this->set->getSuits();
         $suitList = $this->aggregate( $suits );
+        $is_flush = reset($suitList) == 5;
 
-        $cmb = self::_1_HIGH_CARD;
-        if( $this->checkStraight() && $suitList[0] == 5 && $this->internal_set[4] = $this->Ace )
-            $cmb =  self::_10_ROYAL_FLUSH;
-        if( $this->checkStraight() && $suitList[0] == 5 )
-            $cmb =  self::_9_STRAIGHT_FLUSH;
-        if( $numberList[0] == 4 )
-            $cmb =  self::_8_FOUR_OF_A_KIND;
-        if( $numberList[0] == 3 && $numberList[1] == 2 )
-            $cmb =  self::_7_FULL_HOUSE;
-        if( $suitList[0] == 5)
-            $cmb =  self::_6_FLUSH;
-        if($this->checkStraight() )
-            $cmb =  self::_5_STRAIGHT;
-        if( $numberList[0] == 3 )
-            $cmb =  self::_4_THREE_OF_A_KIND;
-        if( $numberList[0] == 2 && $numberList[1] == 2 )
-            $cmb =  self::_3_TWO_PAIRS;
-        if( $numberList[0] == 2 )
-            $cmb =  self::_2_ONE_PAIR;
+        if( $this->checkStraight() && $is_flush && $this->internal_set[4] = $this->Ace ) {
+            $cmb = self::_10_ROYAL_FLUSH;
+            $this->highest = $this->Ace;
+        }
+        elseif( $this->checkStraight() && $is_flush) {
+            $cmb = self::_9_STRAIGHT_FLUSH;
+            $this->highest = max($this->internal_set);
+        }
+        elseif( $numberList[$topSubset] == 4 ) {
+            $cmb = self::_8_FOUR_OF_A_KIND;
+            $this->highest = $topSubset;
+        }
+        elseif( $numberList[$topSubset] == 3 && $numberList[$secondSubset] == 2 ) {
+            $cmb = self::_7_FULL_HOUSE;
+            $this->highest = $topSubset;
+            $this->second = $secondSubset;
+        }
+        elseif( $is_flush ) {
+            $cmb = self::_6_FLUSH;
+            $this->highest = max($this->internal_set);
+        }
+        elseif($this->checkStraight() ) {
+            $cmb = self::_5_STRAIGHT;
+            $this->highest = max($this->internal_set);
+        }
+        elseif( $numberList[$topSubset] == 3 ) {
+            $cmb = self::_4_THREE_OF_A_KIND;
+            $this->highest = $topSubset;
+        }
+        elseif( $numberList[$topSubset] == 2 && $numberList[$secondSubset] == 2 ) {
+            $cmb = self::_3_TWO_PAIRS;
+            $this->highest = max($topSubset, $secondSubset);
+            $this->second = $secondSubset;
+        }
+        elseif( $numberList[$topSubset] == 2 ) {
+            $cmb = self::_2_ONE_PAIR;
+            $this->highest = $topSubset;
+        } else{
+            $cmb = self::_1_HIGH_CARD;
+            $this->highest = max($this->internal_set);
+            $this->second = $secondSubset;
+        }
 
         $this->rank = explode('.', $cmb)[0];
-        $this->description = explode('.', $cmb)[1];
-    }
-
-    private function calcHighestCard()
-    {
-        $this->highest = max($this->internal_set);
+        $this->description = explode('.', $cmb)[1]
+                           . ' [' . self::$order[$this->highest] . ']'
+                           . ( $this->second !== false ? ( '(' . self::$order[$this->second] . ')' ) : '' );
     }
 }

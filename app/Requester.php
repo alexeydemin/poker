@@ -10,8 +10,7 @@ use League\Flysystem\Exception;
 class Requester extends Model
 {
     public $guzzle;
-    public $deckPath = ['method'=>'POST', 'url' => 'http://dealer.internal.comparaonline.com:8080/deck' ];
-    public $cardSetPath  = ['method'=>'GET', 'url' => 'http://dealer.internal.comparaonline.com:8080/deck/%s/deal/5' ];
+
 
     public function __construct()
     {
@@ -25,23 +24,23 @@ class Requester extends Model
         switch ( $res->getStatusCode() )
         {
             case 200:
-                return (string)$res->getBody();
+                $ret['error_msg'] = 0;
+                $ret['body'] = (string)$res->getBody();
+                break;
             case 404:
-                echo 'Your game has expired';
+                $ret['error_msg'] = Repository::$time_expired;
                 break;
             case 405:
-                echo 'We are out of cards!';
+                $ret['error_msg'] = Repository::$out_of_cards;
                 break;
             case 500:
                 return $this->sendRequest($request_data);
+                break;
             default:
                 throw new Exception('Unknown status code');
         }
-    }
 
-    public function getNewDeck()
-    {
-        return $this->sendRequest( $this->deckPath );
+        return $ret;
     }
 
     public function getDeck($get_new = false)
@@ -49,7 +48,7 @@ class Requester extends Model
         if ( Session::has('token') && Session::get('token') && !$get_new ) {
             return Session::get('token');
         } else {
-            $deck = $this->getNewDeck();
+            $deck = $this->sendRequest( Repository::$deckRequest )['body'];
             Session::put('token', $deck);
 
             return $deck;
@@ -58,7 +57,8 @@ class Requester extends Model
 
     public function getCardSet($deckToken)
     {
-        return $this->sendRequest( ['method' => $this->cardSetPath['method'], 'url' => sprintf( $this->cardSetPath['url'], $deckToken)] );
+        return $this->sendRequest( ['method' => Repository::$handRequest['method']
+                                     , 'url' => sprintf( Repository::$handRequest['url'], $deckToken)] );
     }
 
 

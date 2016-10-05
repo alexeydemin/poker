@@ -1,32 +1,31 @@
-// Correct :)
 var Set = React.createClass({
     render: function() {
-        //<div>{'First ' + String.fromCharCode(183) + ' Second'}</div>
-        return <span>{'' + this.props.data.unicode + ''}</span>;
+        return <span className={this.props.data.color == 'red' ? 'card-set red' : 'card-set'} dangerouslySetInnerHTML={{__html: ''+ this.props.data.unicode + ''}} />
     }
 });
 
 var Table = React.createClass({
     getInitialState: function () {
-        return {deck: '', combination1: '', player1set:[],  player2set:[]};
+        return {deck: '', combination1: '', combination2: '', player1set:[],  player2set:[], info: ''};
     },
     sendRequest: function ( action ) {
-        var path = '/' + action;
-        $.post(path, function (r) {
-            console.log('PATH='+path);
+        $.post('/' + action, function (r) {
             console.log('RES1='+r);
             var result = JSON.parse(r);
-            this.setState({
-                deck: result.deck,
-                player1set: result.player1set,
-                player2set: result.player2set,
-                combination1: result.combination1,
-                combination2: result.combination2,
-                winner: result.winner
-            });
-            console.log('COMB1='+this.state.combination1);
-            console.log('PLAYER1SET='+this.state.player1set);
-            console.log('PLAYER2SET='+this.state.player2set);
+            console.log('RESULT=' + result);
+            if( result.error_msg ){
+                this.setState({ info: result.error_msg});
+            } else {
+                this.setState({
+                    deck: result.deck,
+                    player1set: result.player1set,
+                    player2set: result.player2set,
+                    combination1: result.combination1,
+                    combination2: result.combination2,
+                    winner: result.winner,
+                    info: '',
+                });
+            }
         }.bind(this));
     },
 
@@ -43,15 +42,13 @@ var Table = React.createClass({
                 <table className="tg">
                     <tbody>
                     <tr>
-                        <th className="tg-yw4l" colSpan="2">{'\x1f0c1 \u1f0c1 \uf0c1 \u2665  ComparaOnline \u00b7 Pokeroom 2016 \u2666 \u2663' + String.fromCharCode(parseInt('1F0D1', 32)) }</th>
+                        <th className="tg-yw4l" colSpan="2">{'\u2660 \u2665  ComparaOnline \u00b7 Pokeroom 2016 \u2666 \u2663'}</th>
                     </tr>
                     <tr>
                         <td className="tg-yw4l">
-
-                                {this.state.player1set.map((card) => (
-                                    <Set key={card.unicode} data={card} />
-                                ))}
-
+                            {this.state.player1set.map((card) => (
+                                <Set key={card.unicode} data={card} />
+                            ))}
                         </td>
                         <td className="tg-yw4l">
                             {this.state.player2set.map((card) => (
@@ -67,7 +64,7 @@ var Table = React.createClass({
                         <td className="tg-yw4l" colSpan="2">{this.state.winner}</td>
                     </tr>
                     <tr>
-                        <td className="tg-yw4l" colSpan="2">Game over / Game expired</td>
+                        <td className="tg-yw4l" colSpan="2">{this.state.info}</td>
                     </tr>
                     <tr>
                         <td className="tg-yw4l" colSpan="2">Result of the game</td>
