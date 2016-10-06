@@ -2,7 +2,6 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use League\Flysystem\Exception;
 
 class Set
@@ -17,25 +16,35 @@ class Set
         $this->set = json_decode($json);
         if( !$this->set )
             throw new Exception('Trying to get Set from empty array');
-        $this->addPics();
+        $this->decorateUnicode();
         if( $this->set  != array_unique($this->set, SORT_REGULAR) ){
             throw new Exception('Deck inconsistency detected!');
         }
     }
 
-    private function addPics()
+
+    /**
+     * Adds corresponding unicode symbol for each card in a set
+     */
+    private function decorateUnicode()
     {
-        $ss = self::SUIT;
-        $ns = self::NUMBER;
-        foreach($this->set as $s){
-            $s->unicode = '&#x1f0' . Repository::$s_pics[ $s->$ss ] . Repository::$n_pics[ $s->$ns ] . ';' ;
-            $s->color = in_array($s->$ss, ['hearts', 'diamonds']) ? 'red' : 'black';
+        $suite_caption = self::SUIT;
+        $number_caption = self::NUMBER;
+        foreach($this->set as $single_card){
+            $single_card->unicode = '&#x1f0' . Repository::$s_parts[ $single_card->$suite_caption ] . Repository::$n_parts[ $single_card->$number_caption ] . ';' ;
+            $single_card->color = in_array($single_card->$suite_caption, ['hearts', 'diamonds']) ? 'red' : 'black';
         }
     }
 
+
+    /**
+     * Returns array of suits in a set
+     * e.g ['diamonds', 'clubs', 'clubs', 'hearts', 'spades']
+     * @return array
+     * @throws Exception
+     */
     public function getSuits()
     {
-
         $res = [];
         foreach( $this->set as $card ) {
             $val = self::SUIT;
@@ -47,6 +56,12 @@ class Set
         return $res;
     }
 
+    /**
+     * Rerurns array of card numbers
+     * e.g. ['K', 'Q', '7', '9', '7']
+     * @return array
+     * @throws Exception
+     */
     public function getNumbers()
     {
         $res = [];

@@ -2,22 +2,27 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use \GuzzleHttp\Client;
 use Illuminate\Support\Facades\Session;
 use League\Flysystem\Exception;
 
-class Requester extends Model
+class Requester
 {
-    public $guzzle;
-
+    private $guzzle;
 
     public function __construct()
     {
         $this->guzzle = new Client();
     }
 
-    //Simple wrapper to handle 5xx error;
+
+    /**
+     * Get request data ['method' => [POST/GET], ''url' => 'http://hfdskjfhsdk']
+     * and return array of response
+     * @param $request_data
+     * @return ['error_msg' => 'Bla-bla-bla', 'body' => 'Body of request']
+     * @throws Exception
+     */
     private function sendRequest($request_data)
     {
         $res = $this->guzzle->request($request_data['method'], $request_data['url'], ['http_errors' => false]);
@@ -43,6 +48,12 @@ class Requester extends Model
         return $ret;
     }
 
+    /**
+     * Get token of the deck from session if not exists create new one.
+     * If $get_new=true force create new one.
+     * @param bool $get_new
+     * @return mixed
+     */
     public function getDeck($get_new = false)
     {
         if ( Session::has('token') && Session::get('token') && !$get_new ) {
@@ -55,6 +66,11 @@ class Requester extends Model
         }
     }
 
+    /**
+     * Returns result of request for particular deck token.
+     * @param $deckToken
+     * @return mixed
+     */
     public function getCardSet($deckToken)
     {
         return $this->sendRequest( ['method' => Repository::$handRequest['method']

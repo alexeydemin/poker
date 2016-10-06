@@ -6,13 +6,16 @@ use App\Game;
 
 class PokerController extends Controller
 {
-    public $game;
+    private $game;
 
     public function __construct()
     {
         $this->game = new Game();
     }
 
+    /**
+     * Shuffle action
+     */
     public function shuffle()
     {
         $new_game = true;
@@ -20,6 +23,10 @@ class PokerController extends Controller
         echo ( json_encode( $this->game->result_logger ) );
     }
 
+
+    /**
+     * Deal action
+     */
     public function deal()
     {
         $this->game->start();

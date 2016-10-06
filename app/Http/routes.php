@@ -11,7 +11,7 @@
 |
 */
 
-Route::get("/", function(){
+Route::get("/poker", function(){
     return View::make('main');
 });
 Route::post('/deal', 'PokerController@deal' );

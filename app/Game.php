@@ -2,27 +2,26 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Requester;
-
-class Game extends Model
+class Game
 {
     const TIE = '0';
     const PLAYER1 = '1';
     const PLAYER2 = '2';
 
-    public $player1_score = 0;
-    public $player2_score = 0;
     public $result_logger = ['error_msg' => 0];
 
-    public function start( $new_game = false )
+
+    /**
+     * @param bool $new_game - true if new game (shuffle action)
+     * Game logic
+     */
+    public function start($new_game = false )
     {
         $r = new Requester;
         $deck = $r->getDeck( $new_game );
         $this->result_logger['deck'] = $deck;
 
-
-          $data = $r->getCardSet($deck);
+        $data = $r->getCardSet($deck);
         /*$data = [ 'body' => '[{"number":"9","suit":"hearts"},
                               {"number":"9","suit":"clubs"},
                               {"number":"8","suit":"diamonds"},
@@ -50,19 +49,17 @@ class Game extends Model
             $this->result_logger['combination1'] = $combination1->description;
             $this->result_logger['combination2'] = $combination2->description;
 
-            $winner = $this->compareCombinations($combination1, $combination2);
+            $winner = self::compareCombinations($combination1, $combination2);
             $this->result_logger['winner'] = $winner;
-
-            if( $winner == self::PLAYER1 ){
-                $this->player1_score++;
-            }
-            if( $winner == self::PLAYER2 ){
-                $this->player2_score++;
-            }
         }
     }
 
-    public static function compareCombinations($comb1, $comb2)
+    /**
+     * @param $comb1 Combination of first player
+     * @param $comb2 Combination of second player player
+     * @return string Winner const
+     */
+    private static function compareCombinations($comb1, $comb2)
     {
         if( $comb1->rank == $comb2->rank ){
             if( $comb1->highest > $comb2->highest )

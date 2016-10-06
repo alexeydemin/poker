@@ -2,13 +2,7 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
-
-/**
- * Class Combination
- * @package App
- */
-class Combination extends Model
+class Combination
 {
     public static $order = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
     public static $suits = ['clubs', 'diamonds', 'hearts', 'spades' ];
@@ -38,16 +32,20 @@ class Combination extends Model
         $this->set = $set;
         $this->Ace = count(self::$order)-1;
         $this->setInternalArray();
-        echo $this->getCombination() . "\n";
+        $this->calculateCombination();
     }
 
-    public function setInternalArray()
+    /**
+     * Set internal array of cards [2] => 0, [3] => 1 ... [K]=>11, [A]=>12
+     * and sort it ascending order
+     */
+    private function setInternalArray()
     {
-        $conv = array_flip(self::$order);
+        $converted = array_flip(self::$order);
         $res = [];
-        $arr = $this->set->getNumbers();
-        foreach( $arr as  $s){
-            $res[] = $conv[$s];
+        $cards = $this->set->getNumbers();
+        foreach( $cards as  $card){
+            $res[] = $converted[$card];
         }
         sort($res);
         $this->internal_set = $res;
@@ -72,22 +70,30 @@ class Combination extends Model
         return $arr;
     }
 
-    public function checkStraight()
+    /**
+     * Checks whether combination is straight
+     * @return bool|mixed
+     */
+    private function checkStraight()
     {
         $range = range( min($this->internal_set), min($this->internal_set) + count($this->internal_set)-1 );
 
         return $this->internal_set == $range ? max($this->internal_set) : false;
     }
 
-    public function getCombination()
+    private function calculateCombination()
     {
         $numberList = $this->aggregate($this->internal_set);
         reset($numberList);
-        $topSubset = key($numberList);  //most common card
+        //Most common card in a set
+        //e.g [10][10][10][7][K] => [10] => 8
+        $topSubset = key($numberList);
         next($numberList);
-        $secondSubset = key($numberList); //second most common
+        //Second most common card in a set
+        $secondSubset = key($numberList);
         $suits = $this->set->getSuits();
         $suitList = $this->aggregate( $suits );
+        //Whether combination has just one suit
         $is_flush = reset($suitList) == 5;
 
         if( $this->checkStraight() && $is_flush && $this->internal_set[4] == $this->Ace ) {
@@ -134,6 +140,7 @@ class Combination extends Model
         }
 
         $this->rank = explode('.', $cmb)[0];
+        // Combination description + [Most common card] + (Second common card)
         $this->description = explode('.', $cmb)[1]
                            . ' [' . self::$order[$this->highest] . ']'
                            . ( $this->second !== false ? ( '(' . self::$order[$this->second] . ')' ) : '' );
