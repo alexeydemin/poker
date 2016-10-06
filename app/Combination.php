@@ -4,6 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Combination
+ * @package App
+ */
 class Combination extends Model
 {
     public static $order = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -49,12 +53,22 @@ class Combination extends Model
         $this->internal_set = $res;
     }
 
+    /**
+     * @param $e
+     * Gets a set of card returns array 'card' => 'number_of_occurs'
+     * sorted by number of occurrences, then by card number
+     * Input: [K][K][2][2][J]        |  $e = [11,11,0,0,9];
+     * Output: [K]=>2,[2]=>2,[J]=>1  |  $arr = ['11'=>2, '0'=>2, '9'=>1]
+     * @return array
+     */
     public static function aggregate($e)
     {
         $arr =  array_count_values( $e );
-        //array_multisort(array_values($arr), SORT_DESC, array_keys($arr), SORT_DESC, $arr);
-        // TODO: Provide with correct sort!
-        arsort( $arr );
+        $k = array_keys($arr);
+        $v = array_values($arr);
+        array_multisort($v, SORT_DESC, $k, SORT_DESC);
+        $arr = array_combine($k, $v);
+
         return $arr;
     }
 
@@ -71,15 +85,12 @@ class Combination extends Model
         reset($numberList);
         $topSubset = key($numberList);  //most common card
         next($numberList);
-        $secondSubset = key($numberList); // second most common
-        echo 'top =' . $topSubset;
-        echo 'second =' . $secondSubset;
-        die;
+        $secondSubset = key($numberList); //second most common
         $suits = $this->set->getSuits();
         $suitList = $this->aggregate( $suits );
         $is_flush = reset($suitList) == 5;
 
-        if( $this->checkStraight() && $is_flush && $this->internal_set[4] = $this->Ace ) {
+        if( $this->checkStraight() && $is_flush && $this->internal_set[4] == $this->Ace ) {
             $cmb = self::_10_ROYAL_FLUSH;
             $this->highest = $this->Ace;
         }

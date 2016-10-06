@@ -9,21 +9,30 @@ var Table = React.createClass({
         return {deck: '', combination1: '', combination2: '', player1set:[],  player2set:[], info: ''};
     },
     sendRequest: function ( action ) {
+
+
         $.post('/' + action, function (r) {
-            console.log('RES1='+r);
             var result = JSON.parse(r);
-            console.log('RESULT=' + result);
+
+            function test_func(winner){
+                if( winner == '0'){
+                    return 'Tie';
+                } else{
+                    return 'Player ' + result.winner + ' wins';
+                }
+            }
             if( result.error_msg ){
                 this.setState({ info: result.error_msg});
             } else {
+
                 this.setState({
                     deck: result.deck,
                     player1set: result.player1set,
                     player2set: result.player2set,
                     combination1: result.combination1,
                     combination2: result.combination2,
-                    winner: result.winner,
-                    info: '',
+                    winner: test_func(result.winner),
+                    info: ''
                 });
             }
         }.bind(this));
@@ -67,7 +76,8 @@ var Table = React.createClass({
                         <td className="tg-yw4l" colSpan="2">{this.state.info}</td>
                     </tr>
                     <tr>
-                        <td className="tg-yw4l" colSpan="2">Result of the game</td>
+                        <td className="tg-yw4l">player1Score</td>
+                        <td className="tg-yw4l">player2Score</td>
                     </tr>
                     <tr>
                         <td className="tg-yw4l"><input type="button" onClick={this.deal} value="Deal"/></td>

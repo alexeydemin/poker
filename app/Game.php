@@ -7,9 +7,9 @@ use App\Requester;
 
 class Game extends Model
 {
-    const TIE = 'Tie';
-    const PLAYER1 = 'Player 1 wins';
-    const PLAYER2 = 'Player 2 wins';
+    const TIE = '0';
+    const PLAYER1 = '1';
+    const PLAYER2 = '2';
 
     public $player1_score = 0;
     public $player2_score = 0;
@@ -22,25 +22,25 @@ class Game extends Model
         $this->result_logger['deck'] = $deck;
 
 
-          //$data = $r->getCardSet($deck);
-        $data = [ 'body' => '[{"number":"K","suit":"hearts"},
-                              {"number":"K","suit":"clubs"},
-                              {"number":"2","suit":"clubs"},
-                              {"number":"2","suit":"hearts"},
-                              {"number":"J","suit":"diamonds"}]',
-                'error_msg' => 0 ];
+          $data = $r->getCardSet($deck);
+        /*$data = [ 'body' => '[{"number":"9","suit":"hearts"},
+                              {"number":"9","suit":"clubs"},
+                              {"number":"8","suit":"diamonds"},
+                              {"number":"8","suit":"spades"},
+                              {"number":"6","suit":"hearts"}]',
+                'error_msg' => 0 ];*/
         if ($data['error_msg']) {
             $this->result_logger['error_msg'] = $data['error_msg'];
         } else {
             $player1Set = new Set($data['body']);
             $this->result_logger['player1set'] = (array) $player1Set->set;
 
-            //$json2 = $r->getCardSet($deck)['body'];
-            $json2 = '[{"number":"K","suit":"hearts"}
+            $json2 = $r->getCardSet($deck)['body'];
+            /*$json2 = '[{"number":"K","suit":"hearts"}
                       ,{"number":"K","suit":"clubs"}
                       ,{"number":"7","suit":"clubs"}
                       ,{"number":"7","suit":"spades"}
-                      ,{"number":"J","suit":"diamonds"}]';
+                      ,{"number":"J","suit":"diamonds"}]';*/
             $player2Set = new Set($json2);
             $this->result_logger['player2set'] = (array) $player2Set->set;
 
